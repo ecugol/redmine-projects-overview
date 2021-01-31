@@ -1,3 +1,0 @@
-= projects_overview
-
-Description goes here
