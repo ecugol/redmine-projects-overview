@@ -17,5 +17,6 @@ And restart web server
 ## Configuration
 
 1) Create groups, containing "Team" in their names, i.e. "John's Team"
-2) Check the overview page at https://yourinstallation.com/overview
+2) Add users to groups
+3) Check the overview page at https://yourinstallation.com/overview
 
