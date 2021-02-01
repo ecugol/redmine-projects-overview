@@ -1,5 +1,6 @@
 class OverviewController < ApplicationController
-
+  before_action :require_login
+  
   def index
     @all_projects = Project.active.order(:name)
     if params[:selected_projects]

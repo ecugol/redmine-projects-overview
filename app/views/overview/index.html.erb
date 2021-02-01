@@ -81,7 +81,7 @@
                     <td><strong><%= link_to_group group %></strong></td>
                     <td colspan="<%= @projects_num %>"></td>
                 </tr>
-                <% group.users.order(:name).each do |user| %>
+                <% group.users.order(["firstname ASC", "lastname ASC"]).each do |user| %>
                     <tr>
                         <td><%= link_to_user user %></td>
                         <% @selected_projects.each do |project| %>
