@@ -11,7 +11,7 @@ class OverviewController < ApplicationController
       @selected_projects = @all_projects
     end
     @projects_num = @selected_projects.count
-    @groups = Group.where("UPPER(lastname) LIKE ?", "%DEVS TEAM%")
+    @groups = Group.where("UPPER(lastname) LIKE ?", "%[DEVS] %")
   end
 
 end
