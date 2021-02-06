@@ -1,0 +1,27 @@
+<h3>Select Groups which can access Overview:</h3>
+<% Group.all.order(:lastname).each do |group| %>
+    <p>
+        <% checked = if (@settings['overview_groups'].nil?)
+                        false
+                    else
+                        @settings['overview_groups'].include? group.id.to_s
+                    end
+        %>
+        <%= label_tag 'settings[overview_groups]', group.lastname %>
+        <%= check_box_tag('settings[overview_groups][]', group.id, checked).html_safe %>
+    </p>
+<% end %>
+
+<h3>Select Groups included to the Overview report:</h3>
+<% Group.all.order(:lastname).each do |group| %>
+    <p>
+        <% checked = if (@settings['overview_groups_selected'].nil?)
+                        false
+                    else
+                        @settings['overview_groups_selected'].include? group.id.to_s
+                    end
+        %>
+        <%= label_tag 'settings[overview_groups_selected]', group.lastname %>
+        <%= check_box_tag('settings[overview_groups_selected][]', group.id, checked).html_safe %>
+    </p>
+<% end %>

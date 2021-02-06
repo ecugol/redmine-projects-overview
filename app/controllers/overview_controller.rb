@@ -1,8 +1,11 @@
 class OverviewController < ApplicationController
+  include OverviewHelper
   before_action :require_login
+  before_action :check_perm_and_redirect
   
   def index
-    @all_projects = Project.active.order(:name)
+    project_ids = EnabledModule.where(name: "projects_overview").pluck(:project_id)
+    @all_projects = Project.active.where(id: project_ids).order(:name)
     if params[:selected_projects]
       @available_projects = @all_projects.where.not(id: params[:selected_projects])
       @selected_projects = @all_projects.where(id: params[:selected_projects])
@@ -11,7 +14,17 @@ class OverviewController < ApplicationController
       @selected_projects = @all_projects
     end
     @projects_num = @selected_projects.count
-    @groups = Group.where("UPPER(lastname) LIKE ?", "%[DEVS] %")
+    @groups = Group.none
+    unless Setting.plugin_projects_overview["overview_groups_selected"].nil?
+      @groups = Group.where(id: Setting.plugin_projects_overview["overview_groups_selected"])
+    end
   end
+
+  def check_perm_and_redirect
+		unless canAccessOverview
+			render_403
+			return false
+		end
+	end
 
 end

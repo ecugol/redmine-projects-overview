@@ -21,38 +21,42 @@
     <% selected_tag_id = "selected_#{tag_id}" %>
 
     <%= form_with url: "/overview", method: :get do |form| %>
-    <h3>Filter Projects</h3>
-    <span class="query-columns">
-        <span>
-            <%= label_tag available_tag_id, l(:description_available_columns) %>
-            <%= select_tag 'available_projects',
-                    options_from_collection_for_select(@available_projects, "id", "name"),
-                    :id => available_tag_id,
-                    :multiple => true, :size => 12,
-                    :ondblclick => "moveOptions(this.form.#{available_tag_id}, this.form.#{selected_tag_id});" %>
-        </span>
-        <span class="buttons">
-            <input type="button" value="&#8594;" class="move-right"
-            onclick="moveOptions(this.form.<%= available_tag_id %>, this.form.<%= selected_tag_id %>);" />
-            <input type="button" value="&#8592;" class="move-left"
-            onclick="moveOptions(this.form.<%= selected_tag_id %>, this.form.<%= available_tag_id %>);" />
-        </span>
-        <span>
-            <%= label_tag selected_tag_id, l(:description_selected_columns) %>
-            <%= select_tag 'selected_projects',
-                    options_from_collection_for_select(@selected_projects, "id", "name"),
-                    :id => selected_tag_id,
-                    :multiple => true, :size => 12,
-                    :ondblclick => "moveOptions(this.form.#{selected_tag_id}, this.form.#{available_tag_id});" %>
-        </span>
-        <span class="buttons">
-            <input type="button" value="&#8648;" onclick="moveOptionTop(this.form.<%= selected_tag_id %>);" />
-            <input type="button" value="&#8593;" onclick="moveOptionUp(this.form.<%= selected_tag_id %>);" />
-            <input type="button" value="&#8595;" onclick="moveOptionDown(this.form.<%= selected_tag_id %>);" />
-            <input type="button" value="&#8650;" onclick="moveOptionBottom(this.form.<%= selected_tag_id %>);" />
-        </span>
-        <%= form.submit "Filter" %>
+        <% if @all_projects.any? %>
+            <h3>Filter Projects</h3>
+            <span class="query-columns">
+                <span>
+                    <%= label_tag available_tag_id, l(:description_available_columns) %>
+                    <%= select_tag 'available_projects',
+                            options_from_collection_for_select(@available_projects, "id", "name"),
+                            :id => available_tag_id,
+                            :multiple => true, :size => 12,
+                            :ondblclick => "moveOptions(this.form.#{available_tag_id}, this.form.#{selected_tag_id});" %>
+                </span>
+                <span class="buttons">
+                    <input type="button" value="&#8594;" class="move-right"
+                    onclick="moveOptions(this.form.<%= available_tag_id %>, this.form.<%= selected_tag_id %>);" />
+                    <input type="button" value="&#8592;" class="move-left"
+                    onclick="moveOptions(this.form.<%= selected_tag_id %>, this.form.<%= available_tag_id %>);" />
+                </span>
+                <span>
+                    <%= label_tag selected_tag_id, l(:description_selected_columns) %>
+                    <%= select_tag 'selected_projects',
+                            options_from_collection_for_select(@selected_projects, "id", "name"),
+                            :id => selected_tag_id,
+                            :multiple => true, :size => 12,
+                            :ondblclick => "moveOptions(this.form.#{selected_tag_id}, this.form.#{available_tag_id});" %>
+                </span>
+                <span class="buttons">
+                    <input type="button" value="&#8648;" onclick="moveOptionTop(this.form.<%= selected_tag_id %>);" />
+                    <input type="button" value="&#8593;" onclick="moveOptionUp(this.form.<%= selected_tag_id %>);" />
+                    <input type="button" value="&#8595;" onclick="moveOptionDown(this.form.<%= selected_tag_id %>);" />
+                    <input type="button" value="&#8650;" onclick="moveOptionBottom(this.form.<%= selected_tag_id %>);" />
+                </span>
+                <%= form.submit "Filter" %>
+        <% else %>
+            <h3>Plugins is not enabled in any of the projects. Go to each project and enable "Projects overview" plugin if needed.</h3>
         <% end %>
+    <% end %>
 
     <%= javascript_tag do %>
     $(document).ready(function(){
@@ -64,43 +68,47 @@
 </div>
 
 <div>
-    <table class="list">
-        <thead>
-            <tr>
-                <th></th>
-                <% @selected_projects.each do |project| %>
-                    <th>
-                        <%= link_to_project project %>
-                    </th>
-                <% end %>            
-            </tr>
-        </thead>
-        <tbody>
-            <% @groups.each_with_index do |group, idx| %>
+    <% if @selected_projects.any? %>
+        <table class="list">
+            <thead>
                 <tr>
-                    <td><strong><%= link_to_group group %></strong></td>
-                    <td colspan="<%= @projects_num %>"></td>
+                    <th></th>
+                    <% @selected_projects.each do |project| %>
+                        <th>
+                            <%= link_to_project project %>
+                        </th>
+                    <% end %>            
                 </tr>
-                <% group.users.order(["firstname ASC", "lastname ASC"]).each do |user| %>
+            </thead>
+            <tbody>
+                <% @groups.each_with_index do |group, idx| %>
                     <tr>
-                        <td><%= link_to_user user %></td>
-                        <% @selected_projects.each do |project| %>
-                            <td>
-                                <% if user.membership(project) %>
-                                    <a href="<%= project_url project %>/issues/?assigned_to_id=<%= user.id %>" class="icon icon-checked"></a>
-                                <% end %>
-                            </td>
-                        <% end %>
+                        <td><strong><%= link_to_group group %></strong></td>
+                        <td colspan="<%= @projects_num %>"></td>
                     </tr>
+                    <% group.users.order(["firstname ASC", "lastname ASC"]).each do |user| %>
+                        <tr>
+                            <td><%= link_to_user user %></td>
+                            <% @selected_projects.each do |project| %>
+                                <td>
+                                    <% if user.membership(project) %>
+                                        <a href="<%= project_url project %>/issues/?assigned_to_id=<%= user.id %>" class="icon icon-checked"></a>
+                                    <% end %>
+                                </td>
+                            <% end %>
+                        </tr>
+                    <% end %>
+                    <% if @groups.count != idx + 1 %>
+                        <tr>
+                            <td colspan="<%= @projects_num + 1 %>" class="separator"></td>
+                        </tr>
+                    <% end %>
                 <% end %>
-                <% if @groups.count != idx + 1 %>
-                    <tr>
-                        <td colspan="<%= @projects_num + 1 %>" class="separator"></td>
-                    </tr>
-                <% end %>
-            <% end %>
-                
+                    
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    <% else %>
+        <h3>Select projects first</h3>
+    <% end %>
 </div>
